@@ -10,6 +10,7 @@ struct ExtractedProcBusInputDevice {
   name: String
 }
 
+#[derive(Clone)]
 pub struct ExtractedInputDevice {
   pub dev_path: PathBuf,
   pub name: String
@@ -74,14 +75,14 @@ pub fn list_input_devices() -> io::Result<Vec<ExtractedInputDevice>> {
   for dev in extracted {
     let p = dev.sysfs_path;
     if !p.starts_with("/devices/virtual/input/") {
-      match dev_path_for_sysfs_name(&p)? {
-        None => (),
-        Some(dev_path) => {
+      match dev_path_for_sysfs_name(&p) {
+        Ok(Some(dev_path)) => {
           res.push(ExtractedInputDevice {
             dev_path,
             name: dev.name
           });
-        }
+        },
+        _ => ()
       }
     }
   }

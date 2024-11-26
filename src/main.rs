@@ -1,7 +1,9 @@
 
 mod device_listing;
+mod device_monitoring;
+mod identify_routine;
 
-use clap::{Parser, Args, Subcommand, ValueEnum};
+use clap::{Parser, Subcommand};
 use tabled::{Tabled, Table, settings::Style};
 
 #[derive(Tabled)]
@@ -36,7 +38,7 @@ fn main() {
       println!("{}", Table::new(listed_devices).with(Style::blank()).to_string());
     },
     Command::IdentifyDetachableDevices => {
-      println!("TODO!");
+      identify_routine::run();
     }
   }
 }
