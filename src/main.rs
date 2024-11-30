@@ -3,6 +3,9 @@ mod device_listing;
 mod device_monitoring;
 mod identify_routine;
 mod run_routine;
+mod synthetic_switch;
+mod simulate_switch_routine;
+mod struct_ser;
 
 use clap::{Parser, Subcommand};
 use tabled::{Tabled, Table, settings::Style};
@@ -23,6 +26,10 @@ struct Cli {
 enum Command {
   ListInputDevices,
   IdentifyDetachableDevices,
+  SimulateSwitch {
+    #[arg(long)]
+    interval: Option<f64>
+  },
   Run {
     device: String,
     #[arg(long)]
@@ -48,6 +55,9 @@ fn main() {
     },
     Command::Run { device, hysteresis } => {
       run_routine::run(&device, hysteresis);
+    },
+    Command::SimulateSwitch { interval } => {
+      simulate_switch_routine::run(interval.unwrap_or(5.0));
     }
   }
 }
