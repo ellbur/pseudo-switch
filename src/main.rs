@@ -6,6 +6,9 @@ mod run_routine;
 mod synthetic_switch;
 mod simulate_switch_routine;
 mod struct_ser;
+mod simulate_once_routine;
+
+use std::str::FromStr;
 
 use clap::{Parser, Subcommand};
 use tabled::{Tabled, Table, settings::Style};
@@ -26,15 +29,41 @@ struct Cli {
 enum Command {
   ListInputDevices,
   IdentifyDetachableDevices,
-  SimulateSwitch {
+  SimulatePeriodically {
     #[arg(long)]
     interval: Option<f64>
+  },
+  SimulateOnce {
+    #[arg(value_enum, value_name = "on|off")]
+    state: State
   },
   Run {
     device: String,
     #[arg(long)]
     hysteresis: Option<f64>
   },
+}
+
+#[derive(Clone, Debug)]
+enum State {
+  On,
+  Off
+}
+
+impl FromStr for State {
+  type Err = String;
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    let lc = s.to_lowercase();
+    if lc == "off" || lc == "false" || lc == "0" || lc == "no" {
+      Ok(State::Off)
+    }
+    else if lc == "on" || lc == "true" || lc == "1" || lc == "yes" {
+      Ok(State::On)
+    }
+    else {
+      Err("Should be 'on' or 'off'".to_owned())
+    }
+  }
 }
 
 fn main() {
@@ -56,8 +85,11 @@ fn main() {
     Command::Run { device, hysteresis } => {
       run_routine::run(&device, hysteresis);
     },
-    Command::SimulateSwitch { interval } => {
+    Command::SimulatePeriodically { interval } => {
       simulate_switch_routine::run(interval.unwrap_or(5.0));
+    },
+    Command::SimulateOnce { state } => {
+      simulate_once_routine::run(match state { State::On => true, State::Off => false });
     }
   }
 }
