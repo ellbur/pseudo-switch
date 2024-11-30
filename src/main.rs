@@ -2,6 +2,7 @@
 mod device_listing;
 mod device_monitoring;
 mod identify_routine;
+mod run_routine;
 
 use clap::{Parser, Subcommand};
 use tabled::{Tabled, Table, settings::Style};
@@ -22,6 +23,11 @@ struct Cli {
 enum Command {
   ListInputDevices,
   IdentifyDetachableDevices,
+  Run {
+    device: String,
+    #[arg(long)]
+    hysteresis: Option<f64>
+  },
 }
 
 fn main() {
@@ -39,6 +45,9 @@ fn main() {
     },
     Command::IdentifyDetachableDevices => {
       identify_routine::run();
+    },
+    Command::Run { device, hysteresis } => {
+      run_routine::run(&device, hysteresis);
     }
   }
 }
