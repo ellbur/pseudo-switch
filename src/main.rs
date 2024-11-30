@@ -83,7 +83,7 @@ fn main() {
       identify_routine::run();
     },
     Command::Run { device, hysteresis } => {
-      run_routine::run(&device, hysteresis);
+      run_routine::run(device, hysteresis);
     },
     Command::SimulatePeriodically { interval } => {
       simulate_switch_routine::run(interval.unwrap_or(5.0));

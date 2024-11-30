@@ -1,7 +1,8 @@
 
-use std::{path::PathBuf, str::FromStr};
+use std::{path::PathBuf, str::FromStr, time::Duration};
 use inotify::{Inotify, WatchMask};
 use std::sync::mpsc;
+use crate::synthetic_switch::SyntheticTabletSwitch;
 
 fn watch_for_changes<Cb: FnMut(bool)>(device: &str, mut cb: Cb) {
   let path = PathBuf::from_str(device).unwrap();
@@ -36,8 +37,17 @@ fn watch_for_changes<Cb: FnMut(bool)>(device: &str, mut cb: Cb) {
   }
 }
 
-pub fn run(device: &str, hysteresis: Option<f64>) {
-  watch_for_changes(device, |new_state| {
-    println!("{}", new_state);
+pub fn run(device: String, hysteresis: Option<f64>) {
+  let sw = SyntheticTabletSwitch::new().unwrap();
+
+  let (send, receive) = mpsc::channel();
+
+  let watcher_thread = std::thread::spawn(move || {
+    watch_for_changes(&device, |new_state| {
+      send.send(new_state);
+    });
   });
+
+  loop {
+  }
 }
