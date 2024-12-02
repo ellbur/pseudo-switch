@@ -1,7 +1,7 @@
 
 `pseudo-switch` is a program to emulate a tablet-mode switch for Linux devices with detachable keyboards.
 
-`pseudo-switch` monitors for the keyboard being added or removed. When the keyboard is removed, it turns the tablet-mode switch ON, and when the keyboard is added, it turns the table-mode switch off.
+`pseudo-switch` monitors for the keyboard being added or removed. When the keyboard is removed, it turns the tablet-mode switch ON, and when the keyboard is added, it turns the table-mode switch OFF.
 
 `pseudo-switch` can be used, for example, with Sway's `bindswitch tablet:on`.
 
