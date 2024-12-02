@@ -1,9 +1,13 @@
 
 // vim: shiftwidth=2
 
+use std::collections::HashMap;
 use std::fs::{File, read_to_string};
 use std::io::{self, BufRead};
+use std::os::unix::fs::DirEntryExt;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use path_absolutize::Absolutize;
 
 struct ExtractedProcBusInputDevice {
   sysfs_path: String,
@@ -13,6 +17,7 @@ struct ExtractedProcBusInputDevice {
 #[derive(Clone)]
 pub struct ExtractedInputDevice {
   pub dev_path: PathBuf,
+  pub by_path_path: Option<PathBuf>,
   pub name: String
 }
 
@@ -66,18 +71,47 @@ fn extract_input_devices_from_proc_bus_input_devices(proc_bus_input_devices: &st
   res
 }
 
+fn list_by_path_paths() -> io::Result<Vec<(PathBuf, PathBuf)>> {
+  let base = PathBuf::from_str("/dev/input/by-path").unwrap();
+  Ok(base.read_dir()?.into_iter().flat_map(|entry| {
+    if let Ok(entry) = entry {
+      if let Ok(link) = std::fs::read_link(entry.path()) {
+        let link = 
+          if link.is_relative() {
+            link.absolutize_from(&base).unwrap().to_owned().into_owned()
+          }
+          else {
+            link
+          };
+        vec![(link, entry.path())].into_iter()
+      }
+      else {
+        vec![].into_iter()
+      }
+    }
+    else {
+      vec![].into_iter()
+    }
+  }).collect())
+}
+
 pub fn list_input_devices() -> io::Result<Vec<ExtractedInputDevice>> {
   let mut res = Vec::new();
   
   let proc_bus_input_devices = read_to_string("/proc/bus/input/devices")?;
   let extracted = extract_input_devices_from_proc_bus_input_devices(&proc_bus_input_devices);
   
+  let by_path_paths = list_by_path_paths()?;
+
+  let by_path_paths: HashMap<PathBuf, PathBuf> = by_path_paths.into_iter().collect();
+
   for dev in extracted {
     let p = dev.sysfs_path;
     if !p.starts_with("/devices/virtual/input/") {
       match dev_path_for_sysfs_name(&p) {
         Ok(Some(dev_path)) => {
           res.push(ExtractedInputDevice {
+            by_path_path: by_path_paths.get(&dev_path).cloned(),
             dev_path,
             name: dev.name
           });

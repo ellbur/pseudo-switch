@@ -56,7 +56,14 @@ pub fn run(device: String, hysteresis: Option<f64>) {
 
   loop {
     let new_exists = match timeout {
-      Some(timeout) => receive.recv_timeout(timeout),
+      Some(timeout) => {
+        if pending_new_exists.is_some() {
+          receive.recv_timeout(timeout)
+        }
+        else {
+          receive.recv().map_err(|_| RecvTimeoutError::Disconnected)
+        }
+      },
       None => receive.recv().map_err(|_| RecvTimeoutError::Disconnected)
     };
 
@@ -64,8 +71,8 @@ pub fn run(device: String, hysteresis: Option<f64>) {
       Ok(new_exists) => {
         if timeout.is_none() {
           if Some(new_exists) != last_sent {
-            println!("Setting switch to {}", if new_exists { "ON" } else { "OFF" });
-            if let Err(write_err) = sw.write(new_exists) {
+            println!("Setting switch to {}", if new_exists { "OFF" } else { "ON" });
+            if let Err(write_err) = sw.write(!new_exists) {
               println!("Error writing switch state: {}", write_err);
             }
             last_sent = Some(new_exists);
@@ -78,8 +85,8 @@ pub fn run(device: String, hysteresis: Option<f64>) {
       Err(RecvTimeoutError::Timeout) => {
         if let Some(new_exists) = pending_new_exists {
           if Some(new_exists) != last_sent {
-            println!("Setting switch to {}", if new_exists { "ON" } else { "OFF" });
-            if let Err(write_err) = sw.write(new_exists) {
+            println!("Setting switch to {}", if new_exists { "OFF" } else { "ON" });
+            if let Err(write_err) = sw.write(!new_exists) {
               println!("Error writing switch state: {}", write_err);
             }
             last_sent = Some(new_exists);

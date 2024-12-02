@@ -16,7 +16,8 @@ use tabled::{Tabled, Table, settings::Style};
 #[derive(Tabled)]
 struct ListedDevice {
   name: String,
-  path: String
+  path: String,
+  by_path_path: String,
 }
 
 #[derive(Parser)]
@@ -74,7 +75,8 @@ fn main() {
       let listed_devices: Vec<ListedDevice> = device_listing::list_input_devices().unwrap().into_iter().map(|d| {
         ListedDevice {
           name: d.name,
-          path: d.dev_path.to_string_lossy().to_string()
+          path: d.dev_path.to_string_lossy().to_string(),
+          by_path_path: d.by_path_path.map(|p| p.to_string_lossy().to_string()).unwrap_or("".to_string())
         }
       }).collect();
       println!("{}", Table::new(listed_devices).with(Style::blank()).to_string());

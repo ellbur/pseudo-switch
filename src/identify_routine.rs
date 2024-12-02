@@ -16,6 +16,7 @@ struct ListedDevice {
   present: String,
   name: String,
   path: String,
+  by_path_path: String,
   changed: String,
 }
 
@@ -46,13 +47,16 @@ pub fn run() {
       }
     }
 
-    let rows: Vec<ExtractedInputDevice> = all_ever_devices.values().map(|d| d.clone()).collect();
+    let mut rows: Vec<ExtractedInputDevice> = all_ever_devices.values().map(|d| d.clone()).collect();
+    rows.sort_by_key(|d| d.dev_path.clone());
+    let rows = rows;
 
     let listing: Vec<ListedDevice> = rows.iter().map(|d| {
       ListedDevice {
         present: if new_paths.contains(&d.dev_path) { "*".to_owned() } else { " ".to_owned() },
         name: d.name.clone(),
         path: d.dev_path.to_string_lossy().to_string(),
+        by_path_path: d.by_path_path.clone().map(|p| p.to_string_lossy().to_string()).unwrap_or("".to_string()),
         changed: if all_ever_changed.contains(&d.dev_path) { "*".to_owned() } else { " ".to_owned() },
       }
     }).collect();
@@ -62,7 +66,6 @@ pub fn run() {
 
     stdout.queue(Clear(crossterm::terminal::ClearType::All)).unwrap();
     stdout.queue(SavePosition { }).unwrap();
-    stdout.flush().unwrap();
 
     println!("{}",
       Table::new(listing)
