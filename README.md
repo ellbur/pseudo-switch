@@ -57,3 +57,22 @@ You may wish to add hysteresis (a delay) to prevent rapid oscillation. For examp
 pseudo-switch run --hysteresis 0.5 /dev/input/by-path/<your-device>
 ```
 
+## Adding a `systemd` Service
+
+First install to `/usr/bin/pseudo-switch`. Then:
+
+```
+sudo pseudo-switch install-systemd-service --hysteresis 0.5 /dev/input/by-path/<your-device>
+```
+
+This will create, enable, and start a `systemd` service that will run at boot.
+
+## Using with Sway
+
+The following in your sway config will rotate the display in tablet mode:
+
+```
+bindswitch tablet:on output eDP-1 transform 90
+bindswitch tablet:off output eDP-1 transform 0
+```
+
