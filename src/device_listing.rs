@@ -4,7 +4,6 @@
 use std::collections::HashMap;
 use std::fs::{File, read_to_string};
 use std::io::{self, BufRead};
-use std::os::unix::fs::DirEntryExt;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use path_absolutize::Absolutize;
