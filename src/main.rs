@@ -7,8 +7,9 @@ mod synthetic_switch;
 mod simulate_switch_routine;
 mod struct_ser;
 mod simulate_once_routine;
+mod systemd_utils;
 
-use std::str::FromStr;
+use std::{path::Path, str::FromStr};
 
 use clap::{Parser, Subcommand};
 use tabled::{Tabled, Table, settings::Style};
@@ -39,6 +40,11 @@ enum Command {
     state: State
   },
   Run {
+    device: String,
+    #[arg(long)]
+    hysteresis: Option<f64>
+  },
+  AddSystemdService {
     device: String,
     #[arg(long)]
     hysteresis: Option<f64>
@@ -92,6 +98,9 @@ fn main() {
     },
     Command::SimulateOnce { state } => {
       simulate_once_routine::run(match state { State::On => true, State::Off => false });
+    },
+    Command::AddSystemdService { device, hysteresis } => {
+      systemd_utils::add_and_start_systemd_service(Path::new(&device), hysteresis).unwrap();
     }
   }
 }
