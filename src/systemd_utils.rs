@@ -256,11 +256,14 @@ fn build_service_text(device: &Path, hysteresis: Option<f64>) -> Result<String, 
     "[Unit]\n\
      Description=pseudo-switch\n\
      \n\
+     [Install]\n\
+     WantedBy=multi-user.target\n\
+     \n\
      [Service]\n\
      Type=simple\n\
      User=pseudo-switch\n\
      Group=input\n\
-     ExecStart=/usr/bin/pseudo-switch run {} \"{}\"",
+     ExecStart=/usr/bin/pseudo-switch run {} \"{}\"\n",
     hysteresis_text,
     systemd_arg_escape(device.to_str().ok_or("Device path is not formattable".to_string())?)
   ))
