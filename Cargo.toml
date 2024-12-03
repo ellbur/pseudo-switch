@@ -9,18 +9,9 @@ edition = "2021"
 nix = "0.19.0"
 libc = "0.2.80"
 uinput-sys = "0.1.7"
-num-traits = "0.2"
-num-derive = "0.3"
 clap = { version = "4.5.21", features = ["derive"] }
-lazy_static = "1.4.0"
-ioctls = "0.6.1"
-mio = { version = "0.7.7", features = ["os-ext"] }
 inotify = "0.11.0"
-enum-display-derive = "0.1.1"
-wildmatch = "2.1.1"
 tabled = { version = "0.17.0", features = ["ansi"] }
-tui = "0.19"
 crossterm = "0.25"
-console = "0.15.8"
 path-absolutize = "3.1.1"
 
