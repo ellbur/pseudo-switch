@@ -100,7 +100,9 @@ fn main() {
       simulate_once_routine::run(match state { State::On => true, State::Off => false });
     },
     Command::AddSystemdService { device, hysteresis } => {
-      systemd_utils::add_and_start_systemd_service(Path::new(&device), hysteresis).unwrap();
+      if let Err(err) = systemd_utils::add_and_start_systemd_service(Path::new(&device), hysteresis) {
+        println!("ERROR: {}", err);
+      }
     }
   }
 }
